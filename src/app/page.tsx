@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { userSeed } from "@/db/userseed";
+import { taskSeed } from "@/db/taskseed";
 
 export default function Home() {
+  userSeed();
+  taskSeed();
+
   return (
     <div>
       <Button>Click!</Button>
