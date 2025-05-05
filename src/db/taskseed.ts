@@ -1,12 +1,20 @@
 import { db } from "./index";
-import { tasks } from "./schema";
+import { tasks, users } from "./schema";
 import { eq } from "drizzle-orm";
 
 export async function taskSeed() {
   try {
+    const [result] = await db
+      .select({ userId: users.userId })
+      .from(users)
+      .where(eq(users.email, "456@email.com"))
+      .limit(1);
+
+    console.log("this is the user id", result.userId);
+
     const task = {
       taskId: crypto.randomUUID(),
-      userId: "123",
+      userId: result.userId,
       title: "Complete Admin Dashboard",
       description: "Build the task management section of the admin dashboard.",
       completed: false,
@@ -29,8 +37,8 @@ export async function taskSeed() {
       .where(eq(tasks.taskId, task.taskId));
     console.log("Task completion status updated!");
 
-    await db.delete(tasks).where(eq(tasks.taskId, task.taskId));
-    console.log("Task deleted!");
+    // await db.delete(tasks).where(eq(tasks.taskId, task.taskId));
+    // console.log("Task deleted!");
   } catch (error) {
     console.error("Error during task seeding:", error);
   }
