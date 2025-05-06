@@ -56,12 +56,13 @@ export async function POST(req: Request) {
       throw new Error("Failed to create user.");
     }
 
-    const token = signJwt({ userId: newUser.userId, role: newUser.role });
+    const token = await signJwt({ userId: newUser.userId, role: newUser.role });
     const cookie = generateCookie(token);
 
     const response = NextResponse.json(
       {
         message: "User Created successfully",
+        role: newUser.role,
       },
       { status: 200 }
     );

@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 type FieldErrorType = {
   email?: string[] | undefined;
@@ -33,6 +34,7 @@ type ResponseType = {
 };
 
 export default function SignupForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "", role: "USER" });
   const [fieldError, setFieldError] = useState<FieldErrorType | undefined>({});
@@ -76,6 +78,12 @@ export default function SignupForm() {
 
       const response = await res.json();
       setResponseState({ success: response.message });
+
+      if (response.role === "ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
 
       setUser({ email: "", password: "", role: "USER" });
     } catch (err) {

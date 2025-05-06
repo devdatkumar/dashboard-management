@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const payload = verifyJwt(token);
+    const payload = await verifyJwt(token);
     if (!payload) {
       return NextResponse.redirect(new URL("/signin", req.url));
     }

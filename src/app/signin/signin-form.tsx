@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signinSchema } from "@/lib/types/auth-schema";
+import { useRouter } from "next/navigation";
 
 type FieldErrorType = {
   email?: string[] | undefined;
@@ -25,6 +26,7 @@ type ResponseType = {
 };
 
 export default function SigninForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [fieldError, setFieldError] = useState<FieldErrorType | undefined>({});
@@ -65,6 +67,12 @@ export default function SigninForm() {
 
       const response = await res.json();
       setResponseState({ success: response.message });
+
+      if (response.role === "ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
 
       setUser({ email: "", password: "" });
     } catch (err) {

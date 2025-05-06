@@ -43,12 +43,13 @@ export async function POST(req: Request) {
       throw new Error("Invalid credentails!");
     }
 
-    const token = signJwt({ userId: user.userId, role: user.role });
+    const token = await signJwt({ userId: user.userId, role: user.role });
     const cookie = generateCookie(token);
 
     const response = NextResponse.json(
       {
         message: "Sign in success!",
+        role: user.role,
       },
       { status: 200 }
     );
