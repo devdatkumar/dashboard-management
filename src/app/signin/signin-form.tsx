@@ -19,11 +19,16 @@ type FieldErrorType = {
   password?: string[] | undefined;
 };
 
+type ResponseType = {
+  success?: string;
+  failed?: string;
+};
+
 export default function SigninForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [fieldError, setFieldError] = useState<FieldErrorType | undefined>({});
-  const [state, setState] = useState({ success: "", failed: "" });
+  const [responseState, setResponseState] = useState<ResponseType>({});
 
   const handleAction = async (formData: FormData) => {
     const validationResult = signinSchema.safeParse(
@@ -31,8 +36,6 @@ export default function SigninForm() {
     );
 
     setFieldError({});
-    setState({ success: "", failed: "" });
-
     if (!validationResult.success) {
       setFieldError(validationResult.error.flatten().fieldErrors);
       setUser({
@@ -54,19 +57,14 @@ export default function SigninForm() {
       });
 
       if (!res.ok) {
-        const responseData = await res.json();
-        setState({
-          success: "",
-          failed: responseData.message || "Signin failed",
-        });
-
+        const response = await res.json();
+        setResponseState({ failed: response.message });
+        setFieldError(response.errors);
         return;
       }
 
-      setState({
-        success: "Signin successful!",
-        failed: "",
-      });
+      const response = await res.json();
+      setResponseState({ success: response.message });
 
       setUser({ email: "", password: "" });
 
@@ -141,16 +139,17 @@ export default function SigninForm() {
             )}
           </div>
         </div>
-        {state?.failed && (
-          <div className="bg-destructive/20 p-3 rounded-md flex items-center gap-x-2 text-sm text-red-500 border">
+        {responseState.failed && (
+          <div className="bg-red-100 text-red-600 border p-3 rounded-md flex items-center gap-x-2 text-sm">
             <CircleAlert />
-            <p>{state.failed}</p>
+            <p>{responseState.failed}</p>
           </div>
         )}
-        {state?.success && (
-          <div className="bg-green-500/20 p-3 rounded-md flex items-center gap-x-2 text-sm text-green-500 border">
+
+        {responseState.success && (
+          <div className="bg-green-100 text-green-600 border p-3 rounded-md flex items-center gap-x-2 text-sm">
             <UserRoundCheck />
-            <p>{state.success}</p>
+            <p>{responseState.success}</p>
           </div>
         )}
         <Button type="submit">
