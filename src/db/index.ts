@@ -17,12 +17,8 @@ const client = postgres(connectionString, {
 
 export const db = drizzle(client, {
   schema,
-  logger: process.env.NODE_ENV !== "production",
   casing: "snake_case",
 });
-
-const allUsers = await db.select().from(schema.users); // remove this after testing
-console.log("All users: ", allUsers); // remove this after testing
 
 export const closeDbConnection = () => {
   client.end();

@@ -73,11 +73,11 @@ export default function SignupForm() {
         setFieldError(response.errors);
         return;
       }
+
       const response = await res.json();
       setResponseState({ success: response.message });
 
       setUser({ email: "", password: "", role: "USER" });
-      // optionally, redirect or show a success message here
     } catch (err) {
       console.error("Signup failed", err);
     }

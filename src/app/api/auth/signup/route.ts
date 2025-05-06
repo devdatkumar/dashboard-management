@@ -6,6 +6,7 @@ import { users } from "@/db/schema";
 import { signupSchema } from "@/lib/types/auth-schema";
 import { NextResponse } from "next/server";
 import { signJwt } from "@/lib/jwt";
+import generateCookie from "@/lib/cookie";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -56,14 +57,7 @@ export async function POST(req: Request) {
     }
 
     const token = signJwt({ userId: newUser.userId, role: newUser.role });
-
-    const cookie = serialize("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 3600,
-      path: "/",
-      sameSite: "strict",
-    });
+    const cookie = generateCookie(token);
 
     const response = NextResponse.json(
       {

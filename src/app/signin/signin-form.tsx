@@ -67,8 +67,6 @@ export default function SigninForm() {
       setResponseState({ success: response.message });
 
       setUser({ email: "", password: "" });
-
-      // optionally, redirect or show a success message here
     } catch (err) {
       console.error("Signin failed", err);
     }
