@@ -45,7 +45,7 @@ export default function SigninForm() {
     const data = Object.fromEntries(formData);
 
     try {
-      const res = await fetch("/api/signin", {
+      const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
