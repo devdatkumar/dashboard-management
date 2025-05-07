@@ -30,10 +30,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.redirect(new URL("/signin", req.url));
     }
 
-    let { userId } = payload;
     const [newTask] = await db
       .insert(tasks)
-      .values({ userId, title, description, status })
+      .values({ userId: payload.userId, title, description, status })
       .returning({
         taskId: tasks.taskId,
       });
