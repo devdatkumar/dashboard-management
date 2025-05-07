@@ -1,5 +1,14 @@
+import SignOutButton from "@/components/signout";
+import TaskForm from "@/components/task";
+
 const User = () => {
-  return <>This is User's Dashboard</>;
+  return (
+    <>
+      <SignOutButton />
+      Welcome to the User Dashboard
+      <TaskForm />
+    </>
+  );
 };
 
 export default User;

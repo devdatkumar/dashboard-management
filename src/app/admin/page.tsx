@@ -1,5 +1,14 @@
+import SignOutButton from "@/components/signout";
+import TaskForm from "@/components/task";
+
 const Admin = () => {
-  return <>Welcome to the Admin's Dashboard!</>;
+  return (
+    <>
+      <SignOutButton />
+      Welcome to the Admin Dashboard!
+      <TaskForm />
+    </>
+  );
 };
 
 export default Admin;

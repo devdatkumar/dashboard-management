@@ -3,7 +3,7 @@ CREATE TABLE "task" (
 	"user_id" text NOT NULL,
 	"title" text NOT NULL,
 	"description" text,
-	"completed" boolean DEFAULT false,
+	"status" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );

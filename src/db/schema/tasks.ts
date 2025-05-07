@@ -12,7 +12,7 @@ export const tasks = pgTable(
       .references(() => users.userId, { onDelete: "cascade" }),
     title: text("title").notNull(),
     description: text("description"),
-    completed: boolean("completed").default(false),
+    status: boolean("status").default(false),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
   },
