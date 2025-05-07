@@ -68,11 +68,7 @@ export default function SigninForm() {
       const response = await res.json();
       setResponseState({ success: response.message });
 
-      if (response.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/user");
-      }
+      router.push("/user");
 
       setUser({ email: "", password: "" });
     } catch (err) {

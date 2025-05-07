@@ -1,12 +1,10 @@
-import { serialize } from "cookie";
-import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema";
 import { signupSchema } from "@/lib/types/auth-schema";
 import { NextResponse } from "next/server";
 import { signJwt } from "@/lib/jwt";
-import generateCookie from "@/lib/cookie";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -48,7 +46,6 @@ export async function POST(req: Request) {
       })
       .returning({
         userId: users.userId,
-        userEmail: users.email,
         role: users.role,
       });
 
@@ -57,16 +54,21 @@ export async function POST(req: Request) {
     }
 
     const token = await signJwt({ userId: newUser.userId, role: newUser.role });
-    const cookie = generateCookie(token);
 
     const response = NextResponse.json(
       {
         message: "User Created successfully",
-        role: newUser.role,
       },
       { status: 200 }
     );
-    response.headers.append("Set-Cookie", cookie);
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60,
+      sameSite: "lax",
+    });
 
     return response;
   } catch (error) {

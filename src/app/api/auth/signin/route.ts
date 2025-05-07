@@ -3,9 +3,8 @@ import { eq } from "drizzle-orm";
 import { users } from "@/db/schema";
 import { signinSchema } from "@/lib/types/auth-schema";
 import { NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
 import { signJwt } from "@/lib/jwt";
-import generateCookie from "@/lib/cookie";
+import bcryptjs from "bcryptjs";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -44,16 +43,21 @@ export async function POST(req: Request) {
     }
 
     const token = await signJwt({ userId: user.userId, role: user.role });
-    const cookie = generateCookie(token);
 
     const response = NextResponse.json(
       {
         message: "Sign in success!",
-        role: user.role,
       },
       { status: 200 }
     );
-    response.headers.append("Set-Cookie", cookie);
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60,
+      sameSite: "lax",
+    });
 
     return response;
   } catch (error) {
