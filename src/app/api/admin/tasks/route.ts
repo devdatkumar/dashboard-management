@@ -1,52 +1,51 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { taskSchema } from "@/lib/types/task-schema";
 import { db } from "@/db";
 import { tasks } from "@/db/schema";
 import { verifyJwt } from "@/lib/jwt";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  const result = taskSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json(
-      {
-        message: "Data validation failed",
-        errors: result.error.flatten().fieldErrors,
-      },
-      { status: 400 }
-    );
-  }
-  const { title, description, status } = result.data;
-
+export async function GET(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
+
   if (!token) {
     return NextResponse.redirect(new URL("/signin", req.url));
   }
+
   try {
     const payload = await verifyJwt(token);
     if (!payload) {
       return NextResponse.redirect(new URL("/signin", req.url));
     }
 
-    const [newTask] = await db
-      .insert(tasks)
-      .values({ userId: payload.userId, title, description, status })
-      .returning({
-        taskId: tasks.taskId,
-      });
+    if (payload.role !== "ADMIN") {
+      return NextResponse.json(
+        { message: "Unauthorized access" },
+        { status: 403 }
+      );
+    }
 
-    if (!newTask) {
-      throw new Error("Failed to create user.");
+    const taskList = await db
+      .select({
+        taskId: tasks.taskId,
+        title: tasks.title,
+        description: tasks.description,
+        userId: tasks.userId,
+        status: tasks.status,
+        createdAt: tasks.createdAt,
+        updatedAt: tasks.updatedAt,
+      })
+      .from(tasks);
+
+    if (!taskList) {
+      throw new Error("Failed to retrieve tasks.");
     }
 
     const response = NextResponse.json(
       {
-        message: "Task created!",
-        taskId: newTask.taskId,
+        message: "Tasks retrieved!",
+        tasks: taskList,
       },
-      { status: 201 }
+      { status: 200 }
     );
 
     return response;

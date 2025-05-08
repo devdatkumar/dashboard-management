@@ -1,12 +1,18 @@
+"use client";
+
+import AdminTask from "@/components/admintasks";
 import SignOutButton from "@/components/signout";
-import TaskForm from "@/components/task";
 
 const Admin = () => {
   return (
     <>
-      <SignOutButton />
-      Welcome to the Admin Dashboard!
-      <TaskForm />
+      <div className="flex justify-between h-14 items-center px-2 border-b">
+        Admin Dashboard!
+        <SignOutButton />
+      </div>
+      <div>
+        <AdminTask />
+      </div>
     </>
   );
 };

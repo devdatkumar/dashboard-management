@@ -6,8 +6,17 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { BadgePlus, CircleAlert, UserRoundCheck } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { taskSchema } from "@/lib/types/task-schema";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 
 type FieldErrorType = {
   title?: string[] | undefined;
@@ -31,6 +40,8 @@ const TaskForm = () => {
     const validationResult = taskSchema.safeParse(Object.fromEntries(formData));
 
     setFieldError({});
+    setResponseState({});
+
     if (!validationResult.success) {
       setFieldError(validationResult.error.flatten().fieldErrors);
       setTask({
@@ -43,7 +54,7 @@ const TaskForm = () => {
     const data = Object.fromEntries(formData);
 
     try {
-      const res = await fetch("/api/auth/createtask", {
+      const res = await fetch("/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,13 +77,17 @@ const TaskForm = () => {
   };
 
   return (
-    <Card className="w-96">
-      <CardHeader>
-        <CardTitle className="text-2xl">Task</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button className="bg-blue-500">Create Task</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Task Form</SheetTitle>
+          <SheetDescription>Fill in the task details below.</SheetDescription>
+        </SheetHeader>
         <Form action={handleAction}>
-          <div className="grid gap-4">
+          <div className="grid gap-4 mt-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -109,6 +124,14 @@ const TaskForm = () => {
                 </ul>
               )}
             </div>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button type="submit" className="w-full">
+                  <BadgePlus />
+                  Create
+                </Button>
+              </SheetClose>
+            </SheetFooter>
             {responseState.failed && (
               <div className="bg-red-100 text-red-600 border p-3 rounded-md flex items-center gap-x-2 text-sm">
                 <CircleAlert />
@@ -121,14 +144,10 @@ const TaskForm = () => {
                 <p>{responseState.success}</p>
               </div>
             )}
-            <Button type="submit">
-              <BadgePlus />
-              Create
-            </Button>
           </div>
         </Form>
-      </CardContent>
-    </Card>
+      </SheetContent>
+    </Sheet>
   );
 };
 
