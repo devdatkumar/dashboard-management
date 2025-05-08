@@ -9,3 +9,5 @@ export const taskSchema = z.object({
   description,
   status,
 });
+
+export const taskUpdateSchema = taskSchema.partial();
