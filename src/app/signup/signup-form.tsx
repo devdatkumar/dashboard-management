@@ -2,13 +2,7 @@
 
 import React, { useState } from "react";
 import Form from "next/form";
-import {
-  CircleAlert,
-  Eye,
-  EyeClosed,
-  LogIn,
-  UserRoundCheck,
-} from "lucide-react";
+import { Eye, EyeClosed, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
