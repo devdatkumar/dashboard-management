@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, Edit3 } from "lucide-react";
+import UpdateTaskForm from "./updatetask";
 
 type Task = {
-  taskId: string;
+  taskId?: string;
   title?: string;
   description?: string;
   status?: boolean;
@@ -14,7 +15,6 @@ type Task = {
 
 export default function UserTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [responseState, setResponseState] = useState("");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -23,12 +23,10 @@ export default function UserTasks() {
 
         if (!res.ok) {
           const response = await res.json();
-          setResponseState(response.message);
           return;
         }
 
         const response = await res.json();
-        console.log("this is reponse: ", response);
         setTasks(response.tasks || []);
       } catch (error) {
         console.error(error);
@@ -36,7 +34,7 @@ export default function UserTasks() {
     };
 
     fetchTasks();
-  }, []);
+  }, [tasks]);
 
   const updateTask = async (updatedFields: Task) => {
     try {
@@ -91,10 +89,12 @@ export default function UserTasks() {
 
             {!task.status && (
               <div className="flex justify-end items-center space-x-2 border rounded-md md:border-none p-2">
-                <Button className="h-8">
-                  <Edit3 />
-                  Edit
-                </Button>
+                <UpdateTaskForm
+                  taskId={task.taskId}
+                  title={task.title}
+                  description={task.description}
+                  setTasks={setTasks}
+                />
                 <Button
                   variant="outline"
                   className="h-8"
