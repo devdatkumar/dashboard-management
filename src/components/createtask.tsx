@@ -1,8 +1,11 @@
 "use client";
 
+import Form from "next/form";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { BadgePlus } from "lucide-react";
+import { taskSchema } from "@/lib/types/task-schema";
 import {
   Sheet,
   SheetClose,
@@ -13,8 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Check, PencilLine } from "lucide-react";
-import Form from "next/form";
+import { toast } from "sonner";
 
 type Task = {
   taskId?: string;
@@ -23,32 +25,49 @@ type Task = {
   status?: boolean;
 };
 
-type UpdateTaskFormProps = Task & {
-  updateTask: (updatedFields: Task) => Promise<void>;
-};
-
-const UpdateTaskForm = ({
-  taskId,
-  title,
-  description,
-  updateTask,
-}: UpdateTaskFormProps) => {
+const CreateTask = ({
+  setTasks,
+}: {
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+}) => {
   const handleAction = async (formData: FormData) => {
+    const validationResult = taskSchema.safeParse(Object.fromEntries(formData));
+    if (!validationResult.success) {
+      toast.error("Validation failed");
+      return;
+    }
+
     const data = Object.fromEntries(formData);
-    updateTask({ taskId, ...data });
+
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const response = await res.json();
+      if (!res.ok) {
+        toast.error(`${response.message}`);
+        return;
+      }
+
+      setTasks((prevTasks) => [...prevTasks, response.newTask]);
+      toast.success("Task created successfully");
+    } catch (err) {
+      console.error("Task creation failed", err);
+    }
   };
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="h-8">
-          <PencilLine className="mr-2 h-4 w-4" /> Edit Task
-        </Button>
+        <Button className="bg-blue-500">Create Task</Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Edit Task</SheetTitle>
-          <SheetDescription>Update task details below.</SheetDescription>
+          <SheetTitle>Task Form</SheetTitle>
+          <SheetDescription>Fill in the task details below.</SheetDescription>
         </SheetHeader>
         <Form action={handleAction}>
           <div className="grid gap-4 mt-4">
@@ -59,7 +78,6 @@ const UpdateTaskForm = ({
                 name="title"
                 type="text"
                 placeholder="Title"
-                defaultValue={title ?? ""}
                 required
               />
             </div>
@@ -70,15 +88,14 @@ const UpdateTaskForm = ({
                 name="description"
                 type="text"
                 placeholder="Description"
-                defaultValue={description ?? ""}
                 required
               />
             </div>
             <SheetFooter>
               <SheetClose asChild>
                 <Button type="submit" className="w-full">
-                  <Check className="mr-2 h-4 w-4" />
-                  Update
+                  <BadgePlus />
+                  Create
                 </Button>
               </SheetClose>
             </SheetFooter>
@@ -89,4 +106,4 @@ const UpdateTaskForm = ({
   );
 };
 
-export default UpdateTaskForm;
+export default CreateTask;

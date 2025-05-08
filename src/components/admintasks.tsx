@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 type Task = {
   taskId: string;
@@ -15,21 +16,20 @@ type Task = {
 
 export default function AdminTask() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [responseState, setResponseState] = useState("");
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const res = await fetch("/api/admin/tasks");
 
+        const response = await res.json();
         if (!res.ok) {
-          const response = await res.json();
-          setResponseState(response.message);
+          toast.error(`${response.message}`);
+
           return;
         }
 
-        const response = await res.json();
-        console.log("this is reponse: ", response);
+        toast.success(`${response.message}`);
         setTasks(response.tasks || []);
       } catch (error) {
         console.error(error);
@@ -40,11 +40,11 @@ export default function AdminTask() {
   }, []);
 
   return (
-    <div className="border rounded-md overflow-hidden mx-2 mt-2">
+    <div className="border-2 rounded-md overflow-hidden mx-2 mt-2">
       {tasks.map((task) => (
         <div
           key={task.taskId}
-          className="border-t p-3 hover:bg-muted/10 transition-colors"
+          className="border-t border-2 p-3 hover:bg-muted/10 transition-colors"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>

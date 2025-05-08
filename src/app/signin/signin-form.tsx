@@ -14,15 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signinSchema } from "@/lib/types/auth-schema";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type FieldErrorType = {
   email?: string[] | undefined;
   password?: string[] | undefined;
-};
-
-type ResponseType = {
-  success?: string;
-  failed?: string;
 };
 
 export default function SigninForm() {
@@ -30,7 +26,6 @@ export default function SigninForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [fieldError, setFieldError] = useState<FieldErrorType | undefined>({});
-  const [responseState, setResponseState] = useState<ResponseType>({});
 
   const handleAction = async (formData: FormData) => {
     const validationResult = signinSchema.safeParse(
@@ -58,15 +53,14 @@ export default function SigninForm() {
         body: JSON.stringify(data),
       });
 
+      const response = await res.json();
       if (!res.ok) {
-        const response = await res.json();
-        setResponseState({ failed: response.message });
+        toast.error(`${response.message}`);
         setFieldError(response.errors);
         return;
       }
 
-      const response = await res.json();
-      setResponseState({ success: response.message });
+      toast.success(`${response.message}`);
 
       router.push("/user");
 
@@ -141,19 +135,6 @@ export default function SigninForm() {
             )}
           </div>
         </div>
-        {responseState.failed && (
-          <div className="bg-red-100 text-red-600 border p-3 rounded-md flex items-center gap-x-2 text-sm">
-            <CircleAlert />
-            <p>{responseState.failed}</p>
-          </div>
-        )}
-
-        {responseState.success && (
-          <div className="bg-green-100 text-green-600 border p-3 rounded-md flex items-center gap-x-2 text-sm">
-            <UserRoundCheck />
-            <p>{responseState.success}</p>
-          </div>
-        )}
         <Button type="submit">
           <LogIn />
           Sign in

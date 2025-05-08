@@ -27,10 +27,6 @@ export async function GET(req: NextRequest) {
       .from(tasks)
       .where(eq(tasks.userId, payload.userId));
 
-    if (!taskList) {
-      throw new Error("Failed to retrieve task.");
-    }
-
     const response = NextResponse.json(
       {
         message: "Tasks retrieved!",
@@ -79,9 +75,7 @@ export async function POST(req: NextRequest) {
     const [newTask] = await db
       .insert(tasks)
       .values({ userId: payload.userId, title, description, status })
-      .returning({
-        taskId: tasks.taskId,
-      });
+      .returning();
 
     if (!newTask) {
       throw new Error("Failed to create task.");
@@ -90,7 +84,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json(
       {
         message: "Task created!",
-        taskId: newTask.taskId,
+        newTask: newTask,
       },
       { status: 201 }
     );
