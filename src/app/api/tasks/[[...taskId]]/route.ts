@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { tasks } from "@/db/schema";
 import { verifyJwt } from "@/lib/jwt";
 import { and, eq } from "drizzle-orm";
+import { supabase } from "@/lib/supabaseClient";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -81,6 +82,12 @@ export async function POST(req: NextRequest) {
       throw new Error("Failed to create task.");
     }
 
+    await supabase.channel("task_channel").send({
+      type: "broadcast",
+      event: "newTask", // Custom event name
+      payload: newTask, // Send the new task data as payload
+    });
+
     const response = NextResponse.json(
       {
         message: "Task created!",
@@ -145,6 +152,13 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    const updatedTask = result[0];
+    await supabase.channel("task_channel").send({
+      type: "broadcast",
+      event: "taskUpdated", // Custom event name
+      payload: updatedTask, // Send the updated task data as payload
+    });
 
     return NextResponse.json(
       { message: "Task updated successfully", taskId: result[0].taskId },

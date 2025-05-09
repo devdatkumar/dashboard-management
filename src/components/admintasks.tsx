@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useRealtimeTasks } from "@/lib/useRealtimeTasks";
 
 type Task = {
   taskId: string;
@@ -17,27 +18,34 @@ type Task = {
 export default function AdminTask() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch("/api/admin/tasks");
-
-        const response = await res.json();
-        if (!res.ok) {
-          toast.error(`${response.message}`);
-
-          return;
-        }
-
-        toast.success(`${response.message}`);
-        setTasks(response.tasks || []);
-      } catch (error) {
-        console.error(error);
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch("/api/admin/tasks");
+      const response = await res.json();
+      if (!res.ok) {
+        toast.error(`${response.message}`);
+        return;
       }
-    };
 
+      toast.success(`${response.message}`);
+      setTasks(response.tasks || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
     fetchTasks();
   }, []);
+
+  useRealtimeTasks((event) => {
+    if (event.type === "newTask") {
+      fetchTasks();
+      toast.info("New Task Added");
+    } else if (event.type === "taskUpdated") {
+      toast.info("Task Updated");
+      fetchTasks();
+    }
+  });
 
   return (
     <div className="border-2 rounded-md overflow-hidden mx-2 mt-2">
